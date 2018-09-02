@@ -21,6 +21,7 @@ import (
 	"github.com/chromedp/cdproto/page"
 	"github.com/chromedp/cdproto/runtime"
 
+	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp/client"
 )
 
@@ -101,7 +102,7 @@ func (h *TargetHandler) Run(ctxt context.Context) error {
 	for _, a := range []Action{
 		log.Enable(),
 		runtime.Enable(),
-		//network.Enable(),
+		network.Enable(),
 		inspector.Enable(),
 		page.Enable(),
 		dom.Enable(),
@@ -247,11 +248,14 @@ func (h *TargetHandler) processEvent(ctxt context.Context, msg *cdproto.Message)
 	}
 
 	d := msg.Method.Domain()
-	if d != "Page" && d != "DOM" {
+	if d != "Page" && d != "DOM" && d != "Network" {
 		return nil
 	}
 
 	switch d {
+	case "Network":
+		fmt.Println("Network event")
+
 	case "Page":
 		h.pageWaitGroup.Add(1)
 		go h.pageEvent(ctxt, ev)
