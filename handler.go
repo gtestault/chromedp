@@ -263,7 +263,7 @@ func (h *TargetHandler) processEvent(ctxt context.Context, msg *cdproto.Message)
 
 	switch d {
 	case "Network":
-		h.netevents <- ev
+		go func() { h.netevents <- ev }()
 
 	case "Page":
 		h.pageWaitGroup.Add(1)
