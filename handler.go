@@ -44,6 +44,9 @@ type TargetHandler struct {
 	// qevents is the incoming event queue.
 	qevents chan *cdproto.Message
 
+	// netevents is the network event queue.
+	netevents chan interface{}
+
 	// detached is closed when the detached event is received.
 	detached chan *inspector.EventDetached
 
@@ -222,6 +225,12 @@ func (h *TargetHandler) read() (*cdproto.Message, error) {
 	return msg, nil
 }
 
+func (h *TargetHandler) NetEvents(queue chan interface{}) {
+	if queue != nil {
+		h.netevents = queue
+	}
+}
+
 // processEvent processes an incoming event.
 func (h *TargetHandler) processEvent(ctxt context.Context, msg *cdproto.Message) error {
 	if msg == nil {
@@ -254,7 +263,7 @@ func (h *TargetHandler) processEvent(ctxt context.Context, msg *cdproto.Message)
 
 	switch d {
 	case "Network":
-		fmt.Println("Network event")
+		h.netevents <- ev
 
 	case "Page":
 		h.pageWaitGroup.Add(1)
